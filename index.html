@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Iqbal Daily Activity CRM</title>
+<script src="xlsx.full.min.js"></script>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--tx:#1b1f27;--mu:#667085;--bd:#e1e4ea;--ac:#2563eb;--act:#fff;--wa:#b45309;--wab:#fef3c7;--ok:#15803d;--bad:#b91c1c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141a;--card:#1b1e26;--tx:#eceff4;--mu:#98a2b3;--bd:#2c313c;--ac:#6ea0ff;--act:#0b1220;--wa:#fbbf24;--wab:#3a2f10;--ok:#4ade80;--bad:#f87171;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12141a;--card:#1b1e26;--tx:#eceff4;--mu:#98a2b3;--bd:#2c313c;--ac:#6ea0ff;--act:#0b1220;--wa:#fbbf24;--wab:#3a2f10;--ok:#4ade80;--bad:#f87171;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+h1{font-size:20px;margin:0}
+h1 small{display:block;font-size:12px;font-weight:400;color:var(--mu)}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;cursor:pointer}
+.btn:hover{border-color:var(--ac)}
+.pri{background:var(--ac);color:var(--act);border-color:var(--ac);font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+#alerts{display:none;background:var(--wab);color:var(--wa);border:1px solid var(--wa);border-radius:10px;padding:10px 12px;margin-bottom:12px}
+#alerts .it{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px dashed var(--wa)}
+#alerts .it:first-of-type{border-top:0}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.bar input,.bar select{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px}
+.bar input{flex:1;min-width:160px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px 14px;min-width:90px}
+.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--mu)}
+.scroll{overflow-x:auto;background:var(--card);border:1px solid var(--bd);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:1150px}
+.fr th{padding:4px 6px;text-transform:none;letter-spacing:0}
+.fr select{width:100%;min-width:80px;max-width:170px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:4px;font-size:13px;color:var(--tx)}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--bd);vertical-align:top;font-size:14px}
+th{font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;border:1px solid var(--bd);font-size:12px;white-space:nowrap}
+.due{color:var(--bad);font-weight:600}.soon{color:var(--wa);font-weight:600}
+.mu{color:var(--mu)}
+.empty{padding:30px;text-align:center;color:var(--mu)}
+dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:min(640px,94vw);padding:0}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+form{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+form h2{grid-column:1/-1;margin:0;font-size:17px}
+label{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:3px}
+label input,label select,label textarea{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px;font-size:15px;color:var(--tx)}
+.full{grid-column:1/-1}
+.chk{flex-direction:row;align-items:center;gap:8px;font-size:14px;color:var(--tx)}
+.chk input{width:18px;height:18px}
+.acts{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 14px;border-radius:8px;display:none;z-index:50}
+@media(max-width:520px){form{grid-template-columns:1fr}}
+body{background:var(--bg) linear-gradient(180deg,rgba(99,102,241,.16),transparent 280px) no-repeat}
+header{background:linear-gradient(135deg,#6366f1,#ec4899 55%,#f59e0b);color:#fff;padding:14px 16px;border-radius:14px;box-shadow:0 6px 18px rgba(99,102,241,.35)}
+header h1 small{color:rgba(255,255,255,.9)}
+header .btn{border-color:transparent;background:rgba(255,255,255,.95);color:#1b1f27;font-weight:600}
+header .pri{background:#111827;color:#fff}
+.pri{background:linear-gradient(90deg,#4f46e5,#ec4899);border:0;color:#fff}
+.stat{border:0;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.stat span{color:rgba(255,255,255,.92)}
+.stat b.due{color:#fff}
+.stat:nth-child(1){background:linear-gradient(135deg,#3b82f6,#06b6d4)}
+.stat:nth-child(2){background:linear-gradient(135deg,#8b5cf6,#d946ef)}
+.stat:nth-child(3){background:linear-gradient(135deg,#f59e0b,#f97316)}
+.stat:nth-child(4){background:linear-gradient(135deg,#ef4444,#f43f5e)}
+thead tr:first-child th{background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff}
+.fr th{background:rgba(124,58,237,.14)}
+tbody tr:nth-child(even){background:rgba(99,102,241,.07)}
+.tag{border:0;color:#fff;font-weight:600}
+.s-new{background:#3b82f6}.s-prog{background:#8b5cf6}.s-wait{background:#d97706}.s-fu{background:#ec4899}.s-done{background:#10b981}.s-open{background:#0ea5e9}.s-won{background:#16a34a}.s-lost{background:#ef4444}.s-can{background:#6b7280}
+form h2{background:linear-gradient(90deg,#4f46e5,#ec4899);color:#fff;margin:-16px -16px 4px;padding:12px 16px;border-radius:12px 12px 0 0}
+.bar input,.bar select{border-color:#a5b4fc}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Iqbal Daily Activity CRM<small id="clock"></small></h1>
+  <div class="row">
+    <button class="btn pri" id="add">+ New entry</button>
+    <button class="btn" id="xl">Download Excel</button>
+    <button class="btn" id="csv">CSV (Google Sheets)</button>
+    <button class="btn" id="bk">Backup</button>
+    <button class="btn" id="rs">Restore</button>
+    <input type="file" id="file" accept=".json,.xlsx,.xls,.csv" hidden>
+  </div>
+</header>
+
+<div id="alerts"></div>
+<div class="stats" id="stats"></div>
+
+<div class="bar">
+  <input id="q" type="search" placeholder="Search name, number, company, notes…">
+  <select id="flt">
+    <option value="open">Open entries</option>
+    <option value="due">Due / overdue</option>
+    <option value="today">Today’s activity</option>
+    <option value="all">All entries</option>
+    <option value="closed">Closed</option>
+  </select>
+</div>
+
+<div class="scroll"><table>
+<thead><tr><th>Date</th><th>Time</th><th>Name</th><th>Contact</th><th>Company / C/O</th><th>Description</th><th>Status now</th><th>Last follow-up</th><th>Next follow-up</th><th>Final status</th><th></th></tr><tr class="fr" id="fr"></tr></thead>
+<tbody id="tb"></tbody>
+</table><div class="empty" id="empty" style="display:none">No entries yet. Tap “+ New entry”.</div></div>
+<p class="mu" style="font-size:12px">Data is saved in this browser. Use Backup / Download Excel regularly. Reminders pop up while this page is open.</p>
+</div>
+
+<dialog id="dlg"><form id="f" method="dialog">
+<h2 id="ft">New entry</h2>
+<label>Date<input type="date" name="date" required></label>
+<label>Time<input type="time" name="time"></label>
+<label>Name<input name="name" required></label>
+<label>Contact number<input name="phone" type="tel" inputmode="tel"></label>
+<label class="full">Company / C/O<input name="company"></label>
+<label class="full">Description<textarea name="desc" rows="3"></textarea></label>
+<label>Status now<select name="status"><option>New</option><option>In progress</option><option>Waiting for reply</option><option>Follow-up needed</option><option>Done</option></select></label>
+<label>Last follow-up<input type="date" name="last"></label>
+<label>Next follow-up<input type="datetime-local" name="next"></label>
+<label>Final status<select name="final"><option>Open</option><option>Won / Completed</option><option>Lost</option><option>Cancelled</option></select></label>
+<label class="chk full"><input type="checkbox" name="remind" checked> Remind me at the next follow-up time</label>
+<div class="acts"><button type="button" class="btn" id="del" style="color:var(--bad)">Delete</button><button type="button" class="btn" id="cx">Cancel</button><button class="btn pri" id="sv" type="submit">Save</button></div>
+</form></dialog>
+<div id="toast"></div>
+
+<script>
+(function(){
+var KEY="iqbal_daily_activity_crm_v1",data=[],editId=null,cf={};
+var FK=["date","time","name","phone","company","desc","status","last","next","final"];
+function cv(r,k){var v=r[k]||"";return k==="next"?v.slice(0,10):v}
+function calLink(r){if(!r.next)return"";var s=new Date(r.next),e=new Date(s.getTime()+18e5);function f(d){return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+"T"+pad(d.getHours())+pad(d.getMinutes())+"00"}
+  var u="https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent("Follow up: "+r.name)+"&dates="+f(s)+"/"+f(e)+"&details="+encodeURIComponent((r.phone||"")+" "+(r.company||"")+"\n"+(r.desc||""));
+  return' <a class="btn" title="Add to Google Calendar" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" href="'+esc(u)+'">📅</a>'}
+function sc(v){v=(v||"").toLowerCase();return v.indexOf("new")===0?"s-new":v.indexOf("in prog")===0?"s-prog":v.indexOf("wait")===0?"s-wait":v.indexOf("follow")===0?"s-fu":v==="done"?"s-done":v==="open"?"s-open":v.indexOf("won")===0?"s-won":v==="lost"?"s-lost":v.indexOf("cancel")===0?"s-can":""}
+function buildFilters(){
+  var h="";
+  FK.forEach(function(k){
+    var s={};data.forEach(function(r){var v=cv(r,k);if(v)s[v]=1});
+    var vals=Object.keys(s).sort(),isD=(k==="date"||k==="last"||k==="next");
+    if(isD)vals.reverse();
+    if(cf[k]&&!s[cf[k]])cf[k]="";
+    h+='<th><select data-k="'+k+'"><option value="">All</option>'+vals.map(function(v){var lab=isD?fmtD(v):v;if(lab.length>28)lab=lab.slice(0,28)+"…";return'<option value="'+esc(v)+'"'+(cf[k]===v?" selected":"")+'>'+esc(lab)+'</option>'}).join("")+'</select></th>'});
+  h+='<th><button class="btn" id="cfx" style="padding:4px 8px">Clear</button></th>';
+  $("fr").innerHTML=h}
+var COLS=[["date","Date"],["time","Time"],["name","Name"],["phone","Contact Number"],["company","Company / C/O"],["desc","Description"],["status","Status Now"],["last","Last Follow-up"],["next","Next Follow-up"],["remind","Reminder"],["final","Final Status"]];
+var $=function(i){return document.getElementById(i)};
+function load(){try{data=JSON.parse(localStorage.getItem(KEY)||"[]")||[]}catch(e){data=[]}}
+function syncNative(){
+  if(!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()))return;
+  var LN=Capacitor.Plugins.LocalNotifications;if(!LN)return;
+  (async function(){try{
+    var p=await LN.checkPermissions();if(p.display!=="granted")p=await LN.requestPermissions();if(p.display!=="granted")return;
+    var pend=await LN.getPending();if(pend.notifications.length)await LN.cancel({notifications:pend.notifications.map(function(n){return{id:n.id}})});
+    var list=[];data.forEach(function(r,i){var t=nextMs(r);if(isOpen(r)&&r.remind&&t&&t>Date.now())list.push({id:i+1,title:"Follow up: "+r.name,body:[r.phone,r.company].filter(Boolean).join(" \u00b7 "),schedule:{at:new Date(t),allowWhileIdle:true}})});
+    if(list.length)await LN.schedule({notifications:list})
+  }catch(e){}})()}
+function save(){syncNative();try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){toast("Could not save in browser. Please download a backup.")}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function pad(n){return(n<10?"0":"")+n}
+function today(){var d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function nowT(){var d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes())}
+function toast(m){var t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){t.style.display="none"},2800)}
+function isOpen(r){return r.final==="Open"||!r.final}
+function nextMs(r){return r.next?new Date(r.next).getTime():null}
+function snoozed(r){return r.snooze&&r.snooze>Date.now()}
+function isDue(r){var n=nextMs(r);return isOpen(r)&&n!=null&&n<=Date.now()}
+function fmtN(s){if(!s)return"";var d=new Date(s);return d.toLocaleDateString(undefined,{day:"2-digit",month:"short"})+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}
+function fmtD(s){if(!s)return"";var d=new Date(s+"T00:00");return d.toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"})}
+
+function render(){buildFilters();
+  var q=$("q").value.toLowerCase().trim(),f=$("flt").value,t=today();
+  var rows=data.filter(function(r){
+    if(f==="open"&&!isOpen(r))return false;
+    if(f==="closed"&&isOpen(r))return false;
+    if(f==="due"&&!isDue(r))return false;
+    if(f==="today"&&r.date!==t)return false;
+    if(q&&[r.name,r.phone,r.company,r.desc,r.status].join(" ").toLowerCase().indexOf(q)<0)return false;
+    for(var k in cf){if(cf[k]&&cv(r,k)!==cf[k])return false}
+    return true});
+  rows.sort(function(a,b){var an=nextMs(a),bn=nextMs(b);
+    if(f==="all"||f==="today"||f==="closed")return(b.date+b.time)<(a.date+a.time)?-1:1;
+    if(an==null&&bn==null)return 0;if(an==null)return 1;if(bn==null)return -1;return an-bn});
+  $("tb").innerHTML=rows.map(function(r){
+    var n=nextMs(r),cls=isDue(r)?"due":(n&&isOpen(r)&&n-Date.now()<864e5?"soon":"");
+    return'<tr><td>'+esc(fmtD(r.date))+'</td><td>'+esc(r.time)+'</td><td><b>'+esc(r.name)+'</b></td><td>'+(r.phone?'<a href="tel:'+esc(r.phone)+'" style="color:var(--ac)">'+esc(r.phone)+'</a>':'')+'</td><td>'+esc(r.company)+'</td><td style="max-width:240px">'+esc(r.desc)+'</td><td><span class="tag '+sc(r.status)+'">'+esc(r.status)+'</span></td><td>'+esc(fmtD(r.last))+'</td><td class="'+cls+'">'+esc(fmtN(r.next))+(r.next&&r.remind?" 🔔":"")+'</td><td><span class="tag '+sc(r.final)+'">'+esc(r.final)+'</span></td><td style="white-space:nowrap"><button class="btn" data-e="'+r.id+'">Edit</button>'+calLink(r)+'</td></tr>'}).join("");
+  $("empty").style.display=rows.length?"none":"block";
+  var open=data.filter(isOpen).length,due=data.filter(isDue).length,td=data.filter(function(r){return r.date===t}).length;
+  $("stats").innerHTML='<div class="stat"><b>'+data.length+'</b><span>Total</span></div><div class="stat"><b>'+td+'</b><span>Today</span></div><div class="stat"><b>'+open+'</b><span>Open</span></div><div class="stat"><b class="'+(due?"due":"")+'">'+due+'</b><span>Follow-ups due</span></div>';
+  alerts();
+}
+
+function alerts(){
+  var d=data.filter(function(r){return isDue(r)&&r.remind&&!snoozed(r)}),el=$("alerts");
+  document.title=(d.length?"("+d.length+") ":"")+"Iqbal Daily Activity CRM";
+  if(!d.length){el.style.display="none";return}
+  el.style.display="block";
+  el.innerHTML="<b>🔔 Follow-up reminders ("+d.length+")</b>"+d.map(function(r){
+    return'<div class="it"><span><b>'+esc(r.name)+'</b> '+esc(r.phone)+' · '+esc(r.company)+' — due '+esc(fmtN(r.next))+'</span><span class="row"><button class="btn" data-s="'+r.id+'">Snooze 1h</button><button class="btn" data-e="'+r.id+'">Open</button></span></div>'}).join("");
+  d.forEach(function(r){
+    if(r.notified===r.next)return;r.notified=r.next;save();
+    try{if("Notification"in window&&Notification.permission==="granted")new Notification("Follow up: "+r.name,{body:(r.phone||"")+" "+(r.company||"")})}catch(e){}
+  });
+}
+
+function openForm(id){
+  var f=$("f");f.reset();editId=id||null;
+  var r=id?data.find(function(x){return x.id===id}):null;
+  $("ft").textContent=r?"Edit entry":"New entry";$("del").style.display=r?"":"none";
+  if(r){COLS.forEach(function(c){var el=f.elements[c[0]];if(!el)return;if(c[0]==="remind")el.checked=!!r.remind;else el.value=r[c[0]]||""})}
+  else{f.elements.date.value=today();f.elements.time.value=nowT()}
+  $("dlg").showModal();
+  try{if("Notification"in window&&Notification.permission==="default")Notification.requestPermission()}catch(e){}
+}
+$("f").addEventListener("submit",function(e){
+  var f=e.target,o={};
+  COLS.forEach(function(c){var el=f.elements[c[0]];o[c[0]]=c[0]==="remind"?el.checked:el.value.trim()});
+  if(editId){var r=data.find(function(x){return x.id===editId});if(r.next!==o.next){r.snooze=0;r.notified=""}Object.assign(r,o)}
+  else{o.id="r"+Date.now()+Math.floor(Math.random()*1000);data.push(o)}
+  save();render();toast("Saved")});
+$("add").onclick=function(){openForm()};
+$("cx").onclick=function(){$("dlg").close()};
+$("del").onclick=function(){if(confirm("Delete this entry?")){data=data.filter(function(x){return x.id!==editId});save();$("dlg").close();render()}};
+document.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.id==="cfx"){cf={};render();return}
+  if(b.dataset.e)openForm(b.dataset.e);
+  if(b.dataset.s){var r=data.find(function(x){return x.id===b.dataset.s});if(r){r.snooze=Date.now()+36e5;save();render();toast("Snoozed for 1 hour")}}});
+$("q").oninput=render;$("flt").onchange=render;
+$("fr").addEventListener("change",function(e){var k=e.target.dataset.k;if(k){cf[k]=e.target.value;render()}});
+
+function rowsAoa(){return[COLS.map(function(c){return c[1]})].concat(data.map(function(r){return COLS.map(function(c){return c[0]==="remind"?(r.remind?"Yes":"No"):(r[c[0]]||"")})}))}
+async function out(name,blob){
+  if(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()){
+    try{var b64=await new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res(String(fr.result).split(",")[1])};fr.onerror=rej;fr.readAsDataURL(blob)});
+    var P=Capacitor.Plugins,w=await P.Filesystem.writeFile({path:name,data:b64,directory:"CACHE"});
+    await P.Share.share({title:name,url:w.uri,dialogTitle:"Save or share "+name});toast("Ready: "+name)}catch(e){toast("Could not save file")}
+    return}
+  var dl=null;try{dl=await claude.use("downloads")}catch(e){}
+  if(!dl){try{var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();toast("Downloaded "+name)}catch(e){toast("Download not available")}return}
+  try{await dl.save({filename:name,data:blob});toast("Saved "+name)}catch(e){if(e&&e.code!=="declined")toast("Download failed: "+(e.code||"error"))}}
+function stamp(){return today()}
+$("xl").onclick=function(){
+  if(typeof XLSX==="undefined"){toast("Excel library not loaded. Use CSV instead.");return}
+  var ws=XLSX.utils.aoa_to_sheet(rowsAoa());ws["!cols"]=[12,8,22,16,24,40,16,14,18,9,16].map(function(w){return{wch:w}});
+  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Daily Activity");
+  var buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+  out("Iqbal-Daily-Activity-CRM-"+stamp()+".xlsx",new Blob([buf]))};
+$("csv").onclick=function(){
+  var csv="\ufeff"+rowsAoa().map(function(r){return r.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"'}).join(",")}).join("\r\n");
+  out("Iqbal-Daily-Activity-CRM-"+stamp()+".csv",new Blob([csv]));
+  toast("Upload this CSV to Google Sheets: File > Import")};
+$("bk").onclick=function(){out("Iqbal-CRM-backup-"+stamp()+".json",new Blob([JSON.stringify(data,null,1)]))};
+$("rs").onclick=function(){$("file").click()};
+$("file").onchange=async function(e){
+  var fl=e.target.files[0];e.target.value="";if(!fl)return;
+  try{
+    var list=[];
+    if(/\.json$/i.test(fl.name)){list=JSON.parse(await fl.text())}
+    else{
+      var wb=XLSX.read(await fl.arrayBuffer(),{type:"array"}),js=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:"",raw:false});
+      list=js.map(function(j){var o={};COLS.forEach(function(c){var v=j[c[1]];o[c[0]]=c[0]==="remind"?/^y/i.test(v):(v==null?"":String(v))});return o})}
+    if(!Array.isArray(list))throw 0;
+    if(!confirm("Add "+list.length+" entries from this file to your CRM?"))return;
+    list.forEach(function(o){if(!o.id)o.id="r"+Date.now()+Math.floor(Math.random()*1e6);if(!o.final)o.final="Open";data.push(o)});
+    save();render();toast("Restored "+list.length+" entries")
+  }catch(x){toast("Could not read that file")}};
+
+function tick(){$("clock").textContent=new Date().toLocaleString(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})}
+load();render();tick();syncNative();
+setInterval(function(){tick();alerts()},30000);
+})();
+</script>
+</body>
+</html>
